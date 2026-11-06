@@ -14,9 +14,10 @@ There are two Colab notebooks, which differ only in how training starts:
 2. Choose Runtime → Change runtime type → T4 GPU.
 3. Choose Runtime → Run all.
 
-The data comes from the public Kaggle copy of the Gravity Spy training set
-(`tentotheminus9/gravity-spy-gravitational-waves`). If the download asks for credentials, add
-`KAGGLE_USERNAME` and `KAGGLE_KEY` to Colab's Secrets panel.
+A run takes about 20 minutes on a T4, including the 3.9 GB download. The data comes from the public Kaggle
+copy of the Gravity Spy training set (`tentotheminus9/gravity-spy-gravitational-waves`). No Kaggle credentials
+were needed in testing, but if the download asks for them, add `KAGGLE_USERNAME` and `KAGGLE_KEY` to Colab's
+Secrets panel.
 
 ## Method
 
@@ -31,23 +32,48 @@ The data comes from the public Kaggle copy of the Gravity Spy training set
 - **Training:** 25 epochs, AdamW with a one-cycle learning rate (peak 1e-3), batch size 64, cross-entropy
   with label smoothing 0.1, and mixed precision on GPU. The weights from the best validation epoch are kept.
 
-## Results so far
+## Results
 
-**Neither notebook has completed a full training run yet.** The baseline figures below are partial: that
-run was on a laptop CPU and stopped after 8 of 25 epochs, so it never reached the low learning rates at the
-end of the schedule. They come from its best checkpoint (epoch 6, validation accuracy 95.7%). The warm-up
-notebook has only been checked for errors on a tiny subset.
+One full run of each notebook on a Colab T4. Test scores use the 1,180 held-out glitches.
 
-| Test set (1,180 glitches) | Baseline (partial, epoch 6) | Baseline (full) | Warm-up (full) |
-| --- | --- | --- | --- |
-| Accuracy | 96.2% | Not measured | Not measured |
-| Macro-F1 | 0.928 | Not measured | Not measured |
-
-The weakest classes in the partial baseline run are rare or catch-all ones:
-
-| Class | F1 | Test samples |
+| | Baseline | Frozen warm-up |
 | --- | --- | --- |
-| None_of_the_Above | 0.640 | 11 |
-| Paired_Doves | 0.667 | 4 |
-| No_Glitch | 0.851 | 21 |
-| Wandering_Line | 0.875 | 7 |
+| Test accuracy | **97.80%** | 97.63% |
+| Test macro-F1 | **0.9437** | 0.9431 |
+| Best validation accuracy | **98.17%** | 98.08% |
+| Best epoch (of 25) | 22 | 20 |
+
+**The two are effectively tied.** The gap is 2 test images and 1 validation image, from a single run each,
+which is too small to separate from random variation. The frozen warm-up gave no measurable benefit here, and
+it didn't remove the validation dips near peak learning rate either: it fell to 68.7% at one point, while the
+baseline's lowest point after its first epoch was 88.3%.
+
+### Per-class F1
+
+| Class | Test samples | Baseline | Frozen warm-up |
+| --- | --- | --- | --- |
+| 1080Lines | 50 | 0.980 | 0.980 |
+| 1400Ripples | 9 | 0.947 | 0.947 |
+| Air_Compressor | 9 | 0.941 | 0.941 |
+| Blip | 273 | 0.989 | 0.991 |
+| Chirp | 10 | 1.000 | 1.000 |
+| Extremely_Loud | 64 | 0.962 | 0.961 |
+| Helix | 42 | 1.000 | 0.988 |
+| Koi_Fish | 102 | 0.995 | 0.990 |
+| Light_Modulation | 78 | 0.975 | 0.968 |
+| Low_Frequency_Burst | 90 | 0.989 | 0.989 |
+| Low_Frequency_Lines | 66 | 0.954 | 0.947 |
+| No_Glitch | 21 | 0.909 | 0.909 |
+| None_of_the_Above | 11 | 0.783 | 0.783 |
+| Paired_Doves | 4 | 0.667 | 0.667 |
+| Power_Line | 68 | 0.993 | 0.993 |
+| Repeating_Blips | 37 | 0.972 | 0.959 |
+| Scattered_Light | 67 | 0.985 | 0.970 |
+| Scratchy | 50 | 0.971 | 0.980 |
+| Tomte | 13 | 0.929 | 0.963 |
+| Violin_Mode | 64 | 1.000 | 1.000 |
+| Wandering_Line | 7 | 0.833 | 0.833 |
+| Whistle | 45 | 0.989 | 0.989 |
+
+The weakest classes are the same in both runs: Paired_Doves, None_of_the_Above and Wandering_Line. They have
+very few test samples, so their scores are noisy.
