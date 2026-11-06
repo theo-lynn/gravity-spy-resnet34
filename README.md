@@ -48,6 +48,19 @@ which is too small to separate from random variation. The frozen warm-up gave no
 it didn't remove the validation dips near peak learning rate either: it fell to 68.7% at one point, while the
 baseline's lowest point after its first epoch was 88.3%.
 
+### Comparison
+
+| | Baseline | Frozen warm-up |
+| --- | --- | --- |
+| Correct on test set | 1,154 / 1,180 | 1,152 / 1,180 |
+| Classes with the higher F1 | 7 | 3 |
+| Classes tied | 12 | 12 |
+| Lowest validation accuracy after the first epoch | 88.3% | 68.7% |
+| Final train loss | 0.621 | 0.621 |
+
+The baseline's 7 per-class wins are mostly small, and the warm-up's biggest win is on Tomte, a class with only
+13 test samples. Since the warm-up adds code without improving results, the baseline is the better default.
+
 ### Per-class F1
 
 | Class | Test samples | Baseline | Frozen warm-up |
@@ -77,3 +90,9 @@ baseline's lowest point after its first epoch was 88.3%.
 
 The weakest classes are the same in both runs: Paired_Doves, None_of_the_Above and Wandering_Line. They have
 very few test samples, so their scores are noisy.
+
+## Trained model
+
+The warm-up model weights (`resnet34_gravityspy_warmup.pt`, 85 MB) are kept locally in `models/`, not in this
+repo. Loading them and re-scoring the test set reproduced the 97.63% result. The baseline weights were not kept,
+so rerun the baseline notebook to recreate them.
