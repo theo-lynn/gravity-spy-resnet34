@@ -1,11 +1,16 @@
 # Gravity Spy glitch classifier (ResNet-34)
 
 Classifies LIGO glitch spectrograms into 22 classes by fine-tuning an ImageNet-pretrained ResNet-34.
-Everything is in one Colab notebook: [`gravity_spy_resnet34.ipynb`](gravity_spy_resnet34.ipynb).
+There are two Colab notebooks, which differ only in how training starts:
+
+| Notebook | Training |
+| --- | --- |
+| [`gravity_spy_resnet34_baseline.ipynb`](gravity_spy_resnet34_baseline.ipynb) | All layers train for 25 epochs |
+| [`gravity_spy_resnet34_warmup.ipynb`](gravity_spy_resnet34_warmup.ipynb) | 2 epochs training only `layer4` and the output layer, then all layers for 23 epochs |
 
 ## Run it
 
-1. Upload the notebook to [Google Colab](https://colab.research.google.com).
+1. Upload a notebook to [Google Colab](https://colab.research.google.com).
 2. Choose Runtime → Change runtime type → T4 GPU.
 3. Choose Runtime → Run all.
 
@@ -28,17 +33,17 @@ The data comes from the public Kaggle copy of the Gravity Spy training set
 
 ## Results so far
 
-**These are partial results.** The only run so far was on a laptop CPU and stopped after 8 of 25 epochs,
-so it never reached the low learning rates at the end of the schedule. The numbers below come from the
-best checkpoint of that run (epoch 6, validation accuracy 95.7%). A complete 25-epoch run has not been
-measured yet.
+**Neither notebook has completed a full training run yet.** The baseline figures below are partial: that
+run was on a laptop CPU and stopped after 8 of 25 epochs, so it never reached the low learning rates at the
+end of the schedule. They come from its best checkpoint (epoch 6, validation accuracy 95.7%). The warm-up
+notebook has only been checked for errors on a tiny subset.
 
-| Test set (1,180 glitches) | Score |
-| --- | --- |
-| Accuracy | 96.2% |
-| Macro-F1 | 0.928 |
+| Test set (1,180 glitches) | Baseline (partial, epoch 6) | Baseline (full) | Warm-up (full) |
+| --- | --- | --- | --- |
+| Accuracy | 96.2% | Not measured | Not measured |
+| Macro-F1 | 0.928 | Not measured | Not measured |
 
-The weakest classes are rare or catch-all ones:
+The weakest classes in the partial baseline run are rare or catch-all ones:
 
 | Class | F1 | Test samples |
 | --- | --- | --- |
